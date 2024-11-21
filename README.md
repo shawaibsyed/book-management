@@ -45,3 +45,25 @@ The Book Management API is a RESTful service built using **Node.js**, **Express*
 ```bash
 git clone https://github.com/shawaibsyed/book-management.git
 cd book-management
+
+### **2. Install Dependencies**
+```bash
+npm install
+
+### **3. Configure Environment Variables**
+Create a .env file in the root directory with the following content:
+```bash
+DATABASE_URL="postgresql://<username>:<password>@<host>:<port>/<database>?schema=public"
+Replace <username>, <password>, <host>, <port>, and <database> with your PostgreSQL credentials.
+
+### **4. Initialize the Database**
+Run the following Prisma commands to set up the database:
+```bash
+npx prisma migrate dev --name init
+npx prisma db seed
+
+### **5. Run the Application**
+Start the development server:
+```bash
+npm run dev
+The server will run at http://localhost:3000.

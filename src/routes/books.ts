@@ -55,7 +55,33 @@ const router = Router();
  *   description: API for managing books
  */
 
-// Retrieve all books
+/**
+ * @swagger
+ * /books:
+ *   get:
+ *     summary: Retrieve a list of all books
+ *     tags: [Books]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: List of books
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Book'
+ */
 router.get('/', validateQuery, async (req, res, next) => {
   const { page = 1, limit = 10 } = req.query;
 
@@ -66,12 +92,33 @@ router.get('/', validateQuery, async (req, res, next) => {
     });
     res.json(books);
   } catch (error) {
-    console.error('Error fetching books:', error);
     next(new HttpError('Failed to fetch books', 500));
   }
 });
 
-// Retrieve a book by ID
+/**
+ * @swagger
+ * /books/{id}:
+ *   get:
+ *     summary: Retrieve a book by ID
+ *     tags: [Books]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the book to retrieve
+ *     responses:
+ *       200:
+ *         description: The book data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       404:
+ *         description: Book not found
+ */
 router.get('/:id', validateIdParam, async (req, res, next) => {
   const { id } = req.params;
 
@@ -82,12 +129,34 @@ router.get('/:id', validateIdParam, async (req, res, next) => {
     }
     res.json(book);
   } catch (error) {
-    console.error('Error fetching book by ID:', error);
     next(new HttpError('Failed to fetch book', 500));
   }
 });
 
-// Add a new book
+/**
+ * @swagger
+ * /books:
+ *   post:
+ *     summary: Add a new book
+ *     tags: [Books]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Book'
+ *     responses:
+ *       201:
+ *         description: The created book
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       400:
+ *         description: Validation error
+ *       500:
+ *         description: Failed to create book
+ */
 router.post('/', validateBody(CreateBookDto), async (req, res, next) => {
   const { title, author, publishedDate, isbn, pages, language } = req.body;
 
@@ -104,12 +173,41 @@ router.post('/', validateBody(CreateBookDto), async (req, res, next) => {
     });
     res.status(201).json(newBook);
   } catch (error) {
-    console.error('Error creating book:', error);
     next(new HttpError('Failed to create book', 500));
   }
 });
 
-// Update an existing book
+/**
+ * @swagger
+ * /books/{id}:
+ *   put:
+ *     summary: Update an existing book
+ *     tags: [Books]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the book to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Book'
+ *     responses:
+ *       200:
+ *         description: The updated book
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       400:
+ *         description: Validation error
+ *       500:
+ *         description: Failed to update book
+ */
 router.put(
   '/:id',
   validateIdParam,
@@ -132,13 +230,32 @@ router.put(
       });
       res.json(updatedBook);
     } catch (error) {
-      console.error('Error updating book:', error);
       next(new HttpError('Failed to update book', 500));
     }
   },
 );
 
-// Delete a book
+/**
+ * @swagger
+ * /books/{id}:
+ *   delete:
+ *     summary: Delete a book
+ *     tags: [Books]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the book to delete
+ *     responses:
+ *       204:
+ *         description: Book deleted successfully
+ *       400:
+ *         description: Invalid ID parameter
+ *       500:
+ *         description: Failed to delete book
+ */
 router.delete('/:id', validateIdParam, async (req, res, next) => {
   const { id } = req.params;
 
@@ -146,7 +263,6 @@ router.delete('/:id', validateIdParam, async (req, res, next) => {
     await prisma.book.delete({ where: { id: Number(id) } });
     res.status(204).send();
   } catch (error) {
-    console.error('Error deleting book:', error);
     next(new HttpError('Failed to delete book', 500));
   }
 });
